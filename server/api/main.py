@@ -43,11 +43,12 @@ app.add_middleware(
 
 app.include_router(router, prefix="/api")
 
-static_dir = Path(__file__).resolve().parents[2] / "admin" / "dist"
-if static_dir.exists():
-    app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
-
 
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "eat-ai-collector"}
+
+
+static_dir = Path(__file__).resolve().parents[2] / "admin" / "dist"
+if static_dir.exists():
+    app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
