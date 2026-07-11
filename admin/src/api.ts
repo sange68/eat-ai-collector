@@ -26,7 +26,9 @@ export async function api<T>(
   const res = await fetch(path, { ...options, headers });
   if (res.status === 401) {
     clearToken();
-    window.location.href = "/login";
+    if (!window.location.pathname.startsWith("/login")) {
+      window.location.href = "/login";
+    }
     throw new Error("未登入");
   }
   if (!res.ok) {

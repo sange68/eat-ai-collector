@@ -2,16 +2,16 @@ import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from server.api.routes import router
-from server.db.connection import init_sqlite_schema
-from server.db.connection import SessionLocal
+from server.db.connection import SessionLocal, engine, init_sqlite_schema
 from server.db.models import Base
-from server.db.connection import engine
 from server.db.seed import seed_defaults
+
+static_dir = Path(__file__).resolve().parents[2] / "admin" / "dist"
 
 
 @asynccontextmanager
@@ -49,6 +49,26 @@ def health():
     return {"status": "ok", "service": "eat-ai-collector"}
 
 
-static_dir = Path(__file__).resolve().parents[2] / "admin" / "dist"
-if static_dir.exists():
-    app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
+def _serve_spa(path: str = ""):
+    if not static_dir.exists():
+        raise HTTPException(status_code=503, detail="Frontend not built")
+    if path:
+        file_path = static_dir / path
+        if file_path.is_file():
+            return FileResponse(file_path)
+    index = static_dir / "index.html"
+    if not index.is_file():
+        raise HTTPException(status_code=503, detail="Frontend not built")
+    return FileResponse(index)
+
+
+@app.get("/")
+def serve_root():
+    return _serve_spa()
+
+
+@app.get("/{full_path:path}")
+def serve_spa(full_path: str):
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="Not Found")
+    return _serve_spa(full_path)

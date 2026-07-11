@@ -5,7 +5,7 @@ import { api, setToken } from "../api";
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("admin@eat-ai.local");
-  const [password, setPassword] = useState("changeme");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -34,7 +34,7 @@ export default function Login() {
         className="bg-white p-8 rounded-xl shadow-md w-full max-w-md space-y-4"
       >
         <h1 className="text-2xl font-bold">Eat AI Collector</h1>
-        <p className="text-sm text-slate-500">資料收集後台登入</p>
+        <p className="text-sm text-slate-500">資料收集後台登入（預設帳號 admin@eat-ai.local）</p>
         {error && <p className="text-red-600 text-sm">{error}</p>}
         <input
           className="w-full border rounded-lg px-3 py-2"
