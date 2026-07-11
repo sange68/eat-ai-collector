@@ -1,20 +1,23 @@
 import json
-from typing import Optional
+from datetime import datetime
+from typing import Any, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, ConfigDict, field_serializer
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from server.api.auth import LoginRequest, TokenResponse, create_access_token, get_current_user, require_role, verify_password
 from server.db.connection import get_db
-from server.db.models import MenuItem, ScrapeJob, ScrapeResult, ScraperTemplate, User, new_id, utcnow
+from server.db.models import MenuItem, ScrapeJob, ScrapeResult, ScraperTemplate, User, new_id
 from server.services.scrape_runner import run_scrape_job
 
 router = APIRouter()
 
 
 class MenuItemOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     name: str
     brand: Optional[str] = None
@@ -28,9 +31,6 @@ class MenuItemOut(BaseModel):
     data_source: Optional[str] = None
     data_confidence: Optional[str] = None
     source_url: Optional[str] = None
-
-    class Config:
-        from_attributes = True
 
 
 class StatsOut(BaseModel):
@@ -46,43 +46,56 @@ class ScrapeJobCreate(BaseModel):
 
 
 class ScrapeJobOut(BaseModel):
-    id: str
-    url: Optional[str]
-    template_id: Optional[str]
-    status: str
-    result_count: int
-    error_message: Optional[str] = None
-    created_at: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
+    id: str
+    url: Optional[str] = None
+    template_id: Optional[str] = None
+    status: str
+    result_count: int = 0
+    error_message: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+    @field_serializer("created_at")
+    def serialize_created_at(self, value: Optional[datetime]) -> Optional[str]:
+        return value.isoformat() if value else None
 
 
 class TemplateOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     name: str
     domain: str
     base_url: str
     is_active: bool
 
-    class Config:
-        from_attributes = True
-
 
 class ReviewResultOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     job_id: str
-    parsed_name: Optional[str]
-    parsed_calories: Optional[float]
-    parsed_protein: Optional[float]
-    parsed_carbs: Optional[float]
-    parsed_fat: Optional[float]
-    ai_confidence: Optional[str]
-    ai_notes: Optional[str]
+    parsed_name: Optional[str] = None
+    parsed_calories: Optional[float] = None
+    parsed_protein: Optional[float] = None
+    parsed_carbs: Optional[float] = None
+    parsed_fat: Optional[float] = None
+    ai_confidence: Optional[str] = None
+    ai_notes: Optional[str] = None
     review_status: str
+    raw_data: Optional[Any] = None
 
-    class Config:
-        from_attributes = True
+    @field_serializer("raw_data")
+    def serialize_raw(self, value: Any) -> Any:
+        if value is None:
+            return None
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except json.JSONDecodeError:
+                return {"raw": value}
+        return value
 
 
 @router.post("/auth/login", response_model=TokenResponse)
@@ -238,8 +251,8 @@ def get_job(job_id: str, db: Session = Depends(get_db), _user: User = Depends(ge
         raise HTTPException(status_code=404, detail="任務不存在")
     results = db.query(ScrapeResult).filter(ScrapeResult.job_id == job_id).all()
     return {
-        "job": job,
-        "results": results,
+        "job": ScrapeJobOut.model_validate(job),
+        "results": [ReviewResultOut.model_validate(r) for r in results],
     }
 
 

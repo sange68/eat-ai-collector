@@ -12,6 +12,17 @@ export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+function formatError(detail: unknown, fallback: string): string {
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    return detail
+      .map((item) => (typeof item === "object" && item?.msg ? item.msg : String(item)))
+      .join("; ");
+  }
+  if (detail && typeof detail === "object") return JSON.stringify(detail);
+  return fallback;
+}
+
 export async function api<T>(
   path: string,
   options: RequestInit = {}
@@ -29,11 +40,19 @@ export async function api<T>(
     if (!window.location.pathname.startsWith("/login")) {
       window.location.href = "/login";
     }
-    throw new Error("未登入");
+    throw new Error("未登入或登入已過期，請重新登入");
   }
+
+  const text = await res.text();
+  let data: any = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = { detail: text || res.statusText };
+  }
+
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || "請求失敗");
+    throw new Error(formatError(data?.detail, `請求失敗（${res.status}）`));
   }
-  return res.json();
+  return data as T;
 }
