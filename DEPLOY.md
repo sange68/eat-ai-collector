@@ -1,8 +1,19 @@
 # Railway + Supabase 部署（3 步完成）
 
-## 步驟 1：GitHub（已完成可跳過）
+## 已上線（2026-07-12）
 
-Repo: https://github.com/sange68/eat-ai-collector
+**網址：** https://eat-ai-collector-production.up.railway.app
+
+**登入帳號：**
+- Email: `admin@eat-ai.local`
+- 密碼：已設定在 Railway 變數 `ADMIN_PASSWORD`（請至 Railway Dashboard 查看或重設）
+
+**GitHub：** https://github.com/sange68/eat-ai-collector  
+**Railway 專案：** https://railway.com/project/d90e7377-44cb-4061-a8a2-cd833e6984eb
+
+---
+
+## 步驟 1：GitHub（已完成）
 
 ## 步驟 2：Supabase 資料庫
 
