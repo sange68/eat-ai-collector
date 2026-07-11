@@ -18,12 +18,25 @@ static_dir = Path(__file__).resolve().parents[2] / "admin" / "dist"
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     init_sqlite_schema()
+    _ensure_columns()
     db = SessionLocal()
     try:
         seed_defaults(db)
     finally:
         db.close()
     yield
+
+
+def _ensure_columns():
+    from sqlalchemy import text, inspect
+
+    insp = inspect(engine)
+    if "menu_items" not in insp.get_table_names():
+        return
+    cols = {c["name"] for c in insp.get_columns("menu_items")}
+    with engine.begin() as conn:
+        if "image_url" not in cols:
+            conn.execute(text("ALTER TABLE menu_items ADD COLUMN image_url VARCHAR"))
 
 
 app = FastAPI(

@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS menu_items (
     data_confidence TEXT,
     source_url TEXT,
     barcode TEXT,
+    image_url TEXT,
     derivation_path TEXT,
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     created_at TEXT NOT NULL DEFAULT (datetime('now'))

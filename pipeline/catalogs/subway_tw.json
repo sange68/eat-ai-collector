@@ -1,0 +1,81 @@
+[
+  {
+    "parsed_name": "雞肉三明治（6吋）",
+    "brand": "Subway",
+    "category": "main",
+    "calories_kcal": 280,
+    "protein_g": 20,
+    "carbs_g": 41,
+    "fat_g": 4,
+    "price_twd": 95,
+    "image_url": "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400",
+    "data_source": "official",
+    "data_confidence": "high",
+    "notes": "台灣 Subway 官方營養參考值（種子資料）"
+  },
+  {
+    "parsed_name": "火雞胸三明治（6吋）",
+    "brand": "Subway",
+    "category": "main",
+    "calories_kcal": 260,
+    "protein_g": 18,
+    "carbs_g": 40,
+    "fat_g": 3.5,
+    "price_twd": 100,
+    "image_url": "https://images.unsplash.com/photo-1550507992-eb52bfee3490?w=400",
+    "data_source": "official",
+    "data_confidence": "high"
+  },
+  {
+    "parsed_name": "金槍魚三明治（6吋）",
+    "brand": "Subway",
+    "category": "main",
+    "calories_kcal": 430,
+    "protein_g": 20,
+    "carbs_g": 40,
+    "fat_g": 22,
+    "price_twd": 110,
+    "image_url": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400",
+    "data_source": "official",
+    "data_confidence": "high"
+  },
+  {
+    "parsed_name": "烤牛肉三明治（6吋）",
+    "brand": "Subway",
+    "category": "main",
+    "calories_kcal": 290,
+    "protein_g": 24,
+    "carbs_g": 41,
+    "fat_g": 4,
+    "price_twd": 120,
+    "image_url": "https://images.unsplash.com/photo-1485451456034-8a7e2d8c9b9d?w=400",
+    "data_source": "official",
+    "data_confidence": "high"
+  },
+  {
+    "parsed_name": "蔬菜三明治（6吋）",
+    "brand": "Subway",
+    "category": "main",
+    "calories_kcal": 210,
+    "protein_g": 8,
+    "carbs_g": 40,
+    "fat_g": 2.5,
+    "price_twd": 75,
+    "image_url": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400",
+    "data_source": "official",
+    "data_confidence": "high"
+  },
+  {
+    "parsed_name": "義式肉醬三明治（6吋）",
+    "brand": "Subway",
+    "category": "main",
+    "calories_kcal": 390,
+    "protein_g": 20,
+    "carbs_g": 42,
+    "fat_g": 16,
+    "price_twd": 115,
+    "image_url": "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400",
+    "data_source": "official",
+    "data_confidence": "high"
+  }
+]

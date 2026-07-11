@@ -1,0 +1,62 @@
+[
+  {
+    "place_id": "demo_datong_bbq_01",
+    "name": "大同區炭火燒肉店",
+    "address": "台北市大同區民權西路100號",
+    "rating": 4.3,
+    "user_rating_count": 812,
+    "primary_type": "barbecue_restaurant",
+    "types": ["barbecue_restaurant", "restaurant"],
+    "review_summary": "客人常提到牛小排、橫隔膜、生菜包肉，份量大、醬汁偏甜。人均約 600-800 元。",
+    "menu_hints": ["牛小排", "橫隔膜", "生菜包肉", "生啤酒"],
+    "price_level": 2
+  },
+  {
+    "place_id": "demo_datong_bbq_02",
+    "name": "寧夏夜市烤肉攤",
+    "address": "台北市大同區寧夏路",
+    "rating": 4.1,
+    "user_rating_count": 1250,
+    "primary_type": "barbecue_restaurant",
+    "types": ["barbecue_restaurant", "meal_takeaway"],
+    "review_summary": "評論多提串燒、雞翅、甜不辣，價格親民，排隊久。",
+    "menu_hints": ["烤肉串", "雞翅", "甜不辣"],
+    "price_level": 1
+  },
+  {
+    "place_id": "demo_datong_noodle_01",
+    "name": "大同牛肉麵老店",
+    "address": "台北市大同區重慶北路",
+    "rating": 4.5,
+    "user_rating_count": 2300,
+    "primary_type": "restaurant",
+    "types": ["restaurant", "chinese_restaurant"],
+    "review_summary": "招牌紅燒牛肉麵、清燉牛肉麵，湯頭濃、肉大塊。",
+    "menu_hints": ["紅燒牛肉麵", "清燉牛肉麵", "小菜"],
+    "price_level": 1
+  },
+  {
+    "place_id": "demo_datong_lu_01",
+    "name": "圓環滷肉飯",
+    "address": "台北市大同區南京西路",
+    "rating": 4.2,
+    "user_rating_count": 980,
+    "primary_type": "restaurant",
+    "types": ["restaurant"],
+    "review_summary": "滷肉飯、魯蛋、豬腳，份量足、偏鹹香。",
+    "menu_hints": ["滷肉飯", "魯蛋", "豬腳"],
+    "price_level": 1
+  },
+  {
+    "place_id": "demo_datong_hotpot_01",
+    "name": "迪化街火鍋店",
+    "address": "台北市大同區迪化街",
+    "rating": 4.4,
+    "user_rating_count": 640,
+    "primary_type": "restaurant",
+    "types": ["restaurant"],
+    "review_summary": "麻辣鍋、鴛鴦鍋，推薦牛肉片與鴨血。人均約 500。",
+    "menu_hints": ["麻辣鍋", "牛肉片", "鴨血", "豆腐"],
+    "price_level": 2
+  }
+]

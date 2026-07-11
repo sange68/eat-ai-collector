@@ -26,32 +26,44 @@ def seed_defaults(db: Session) -> None:
             )
         )
 
-    templates = [
+    desired = [
         {
-            "name": "iCook 食譜",
+            "name": "iCook 熱門食譜（示範）",
             "domain": "icook.tw",
             "base_url": "https://icook.tw/recipes/",
-            "config": {"type": "icook_recipe", "data_line": "street_food"},
+            "config": {"type": "icook_seed_batch", "data_line": "street_food"},
         },
         {
-            "name": "Subway 台灣營養",
+            "name": "Subway 台灣營養目錄",
             "domain": "subway.com",
-            "base_url": "https://www.subway.com/zh-TW/menunutrition",
+            "base_url": "catalog://subway_tw.json",
             "config": {
-                "type": "subway_nutrition",
+                "type": "subway_catalog",
                 "brand": "Subway",
+                "data_line": "convenience_chain",
+            },
+        },
+        {
+            "name": "麥當勞台灣營養目錄",
+            "domain": "mcdonalds.com.tw",
+            "base_url": "catalog://mcdonalds_tw.json",
+            "config": {
+                "type": "mcdonalds_catalog",
+                "brand": "McDonald's",
                 "data_line": "convenience_chain",
             },
         },
     ]
 
-    for tpl in templates:
-        exists = (
-            db.query(ScraperTemplate)
-            .filter(ScraperTemplate.name == tpl["name"])
-            .first()
-        )
-        if not exists:
+    existing = {t.name: t for t in db.query(ScraperTemplate).all()}
+    for tpl in desired:
+        if tpl["name"] in existing:
+            row = existing[tpl["name"]]
+            row.domain = tpl["domain"]
+            row.base_url = tpl["base_url"]
+            row.config = json.dumps(tpl["config"], ensure_ascii=False)
+            row.is_active = True
+        else:
             db.add(
                 ScraperTemplate(
                     id=new_id(),
@@ -61,5 +73,10 @@ def seed_defaults(db: Session) -> None:
                     config=json.dumps(tpl["config"], ensure_ascii=False),
                 )
             )
+
+    # deactivate obsolete templates
+    for name, row in existing.items():
+        if name not in {t["name"] for t in desired}:
+            row.is_active = False
 
     db.commit()

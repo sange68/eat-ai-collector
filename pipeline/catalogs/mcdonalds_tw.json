@@ -1,0 +1,80 @@
+[
+  {
+    "parsed_name": "大麥克",
+    "brand": "McDonald's",
+    "category": "main",
+    "calories_kcal": 563,
+    "protein_g": 25.2,
+    "carbs_g": 44.2,
+    "fat_g": 32.7,
+    "price_twd": 95,
+    "image_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400",
+    "data_source": "official",
+    "data_confidence": "high"
+  },
+  {
+    "parsed_name": "麥香雞",
+    "brand": "McDonald's",
+    "category": "main",
+    "calories_kcal": 377,
+    "protein_g": 16.6,
+    "carbs_g": 40.1,
+    "fat_g": 16.5,
+    "price_twd": 55,
+    "image_url": "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400",
+    "data_source": "official",
+    "data_confidence": "high"
+  },
+  {
+    "parsed_name": "麥克雞塊（6塊）",
+    "brand": "McDonald's",
+    "category": "side",
+    "calories_kcal": 271,
+    "protein_g": 14.3,
+    "carbs_g": 16.7,
+    "fat_g": 16.1,
+    "price_twd": 69,
+    "image_url": "https://images.unsplash.com/photo-1562967914-608f82629710?w=400",
+    "data_source": "official",
+    "data_confidence": "high"
+  },
+  {
+    "parsed_name": "薯條（中）",
+    "brand": "McDonald's",
+    "category": "side",
+    "calories_kcal": 337,
+    "protein_g": 4.0,
+    "carbs_g": 43.6,
+    "fat_g": 16.5,
+    "price_twd": 55,
+    "image_url": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400",
+    "data_source": "official",
+    "data_confidence": "high"
+  },
+  {
+    "parsed_name": "冰炫風（OREO）",
+    "brand": "McDonald's",
+    "category": "snack",
+    "calories_kcal": 340,
+    "protein_g": 6.5,
+    "carbs_g": 52,
+    "fat_g": 12,
+    "price_twd": 65,
+    "image_url": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400",
+    "data_source": "official",
+    "data_confidence": "high"
+  },
+  {
+    "parsed_name": "無糖冰綠茶（中）",
+    "brand": "McDonald's",
+    "category": "drink",
+    "calories_kcal": 0,
+    "protein_g": 0,
+    "carbs_g": 0,
+    "fat_g": 0,
+    "price_twd": 48,
+    "image_url": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",
+    "data_source": "official",
+    "data_confidence": "high"
+  }
+]

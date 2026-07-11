@@ -1,12 +1,21 @@
-import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { clearToken, getToken } from "./api";
 import Dashboard from "./pages/Dashboard";
+import GoogleExplorer from "./pages/GoogleExplorer";
 import Login from "./pages/Login";
 import Review from "./pages/Review";
 import Workbench from "./pages/Workbench";
 
+const nav = [
+  { to: "/", label: "總覽" },
+  { to: "/workbench", label: "① 網址/連鎖收集" },
+  { to: "/google", label: "② Google 餐廳" },
+  { to: "/review", label: "③ 審核入庫" },
+];
+
 function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const logout = () => {
     clearToken();
     navigate("/login");
@@ -14,17 +23,22 @@ function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex">
-      <aside className="w-56 bg-slate-900 text-white p-4 flex flex-col gap-2">
-        <h1 className="text-lg font-bold mb-4">Eat AI Collector</h1>
-        <Link className="hover:text-emerald-300" to="/">
-          儀表板
-        </Link>
-        <Link className="hover:text-emerald-300" to="/workbench">
-          URL 工作台
-        </Link>
-        <Link className="hover:text-emerald-300" to="/review">
-          審核佇列
-        </Link>
+      <aside className="w-60 bg-slate-900 text-white p-4 flex flex-col gap-1">
+        <h1 className="text-lg font-bold mb-1">Eat AI Collector</h1>
+        <p className="text-xs text-slate-400 mb-4">飲食資料收集後台</p>
+        {nav.map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className={`rounded px-2 py-2 text-sm ${
+              location.pathname === item.to
+                ? "bg-emerald-600 text-white"
+                : "hover:bg-slate-800 text-slate-200"
+            }`}
+          >
+            {item.label}
+          </Link>
+        ))}
         <button
           onClick={logout}
           className="mt-auto text-left text-sm text-slate-400 hover:text-white"
@@ -32,7 +46,7 @@ function Layout({ children }: { children: React.ReactNode }) {
           登出
         </button>
       </aside>
-      <main className="flex-1 p-8">{children}</main>
+      <main className="flex-1 p-6 md:p-8 overflow-auto">{children}</main>
     </div>
   );
 }
@@ -59,6 +73,14 @@ export default function App() {
         element={
           <PrivateRoute>
             <Workbench />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/google"
+        element={
+          <PrivateRoute>
+            <GoogleExplorer />
           </PrivateRoute>
         }
       />

@@ -31,6 +31,7 @@ class MenuItemOut(BaseModel):
     data_source: Optional[str] = None
     data_confidence: Optional[str] = None
     source_url: Optional[str] = None
+    image_url: Optional[str] = None
 
 
 class StatsOut(BaseModel):
@@ -207,7 +208,9 @@ def create_scrape_job(
     db.add(job)
     db.commit()
     db.refresh(job)
-    background_tasks.add_task(run_scrape_job, job.id)
+    # Run immediately for reliability on single-worker Railway
+    run_scrape_job(job.id)
+    db.refresh(job)
     return job
 
 
@@ -231,8 +234,21 @@ def run_template(
     db.add(job)
     db.commit()
     db.refresh(job)
-    background_tasks.add_task(run_scrape_job, job.id)
+    run_scrape_job(job.id)
+    db.refresh(job)
     return job
+
+
+@router.post("/scrape/jobs/retry-pending")
+def retry_pending(
+    db: Session = Depends(get_db),
+    user: User = Depends(require_role("admin", "reviewer")),
+):
+    pending = db.query(ScrapeJob).filter(ScrapeJob.status == "pending").all()
+    ids = [j.id for j in pending]
+    for job_id in ids:
+        run_scrape_job(job_id)
+    return {"retried": len(ids)}
 
 
 @router.get("/scrape/jobs", response_model=list[ScrapeJobOut])
@@ -294,6 +310,7 @@ def approve_result(
         name=result.parsed_name,
         brand=raw.get("brand"),
         category=raw.get("category", "main"),
+        price_twd=raw.get("price_twd"),
         calories_kcal=result.parsed_calories,
         protein_g=result.parsed_protein,
         carbs_g=result.parsed_carbs,
@@ -302,12 +319,55 @@ def approve_result(
         data_source=raw.get("data_source", "official"),
         data_confidence=result.ai_confidence or "high",
         source_url=raw.get("source_url") or raw.get("url"),
+        image_url=raw.get("image_url"),
         derivation_path=json.dumps(raw, ensure_ascii=False),
     )
     result.review_status = "approved"
     db.add(item)
     db.commit()
     return {"status": "approved", "menu_item_id": item.id}
+
+
+@router.post("/review/approve-all")
+def approve_all(
+    db: Session = Depends(get_db),
+    user: User = Depends(require_role("admin", "reviewer")),
+):
+    pending = (
+        db.query(ScrapeResult).filter(ScrapeResult.review_status == "pending").all()
+    )
+    count = 0
+    for result in pending:
+        if not result.parsed_name:
+            continue
+        raw = {}
+        try:
+            raw = json.loads(result.raw_data or "{}")
+        except json.JSONDecodeError:
+            pass
+        db.add(
+            MenuItem(
+                id=new_id(),
+                name=result.parsed_name,
+                brand=raw.get("brand"),
+                category=raw.get("category", "main"),
+                price_twd=raw.get("price_twd"),
+                calories_kcal=result.parsed_calories,
+                protein_g=result.parsed_protein,
+                carbs_g=result.parsed_carbs,
+                fat_g=result.parsed_fat,
+                data_line=raw.get("data_line", "convenience_chain"),
+                data_source=raw.get("data_source", "official"),
+                data_confidence=result.ai_confidence or "medium",
+                source_url=raw.get("source_url") or raw.get("url"),
+                image_url=raw.get("image_url"),
+                derivation_path=json.dumps(raw, ensure_ascii=False),
+            )
+        )
+        result.review_status = "approved"
+        count += 1
+    db.commit()
+    return {"approved": count}
 
 
 @router.post("/review/{result_id}/reject")
@@ -322,3 +382,107 @@ def reject_result(
     result.review_status = "rejected"
     db.commit()
     return {"status": "rejected"}
+
+
+class PlacesSearchRequest(BaseModel):
+    area: str = "台北市大同區"
+    place_type: str = "燒烤店"
+    min_reviews: int = 50
+    min_rating: float = 0.0
+
+
+class PlacesImportRequest(BaseModel):
+    places: list[dict]
+
+
+@router.post("/places/search")
+def places_search(
+    body: PlacesSearchRequest,
+    _user: User = Depends(get_current_user),
+):
+    from pipeline.scrapers.places import search_places
+
+    return search_places(
+        area=body.area,
+        place_type=body.place_type,
+        min_reviews=body.min_reviews,
+        min_rating=body.min_rating,
+    )
+
+
+@router.post("/places/import")
+def places_import(
+    body: PlacesImportRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Import selected Google places into review queue as menu-hint items."""
+    created = 0
+    job = ScrapeJob(
+        id=new_id(),
+        url=f"places://import/{len(body.places)}",
+        status="completed",
+        triggered_by=user.email,
+        result_count=0,
+    )
+    db.add(job)
+    db.flush()
+
+    for place in body.places:
+        hints = place.get("menu_hints") or []
+        if not hints:
+            hints = [place.get("name") or "未知餐廳品項"]
+        for hint in hints:
+            row = {
+                "type": "google_place_hint",
+                "parsed_name": f"{place.get('name')}｜{hint}",
+                "brand": place.get("name"),
+                "category": "main",
+                "data_line": "street_food",
+                "data_source": "estimated",
+                "source_url": place.get("address"),
+                "image_url": None,
+                "calories_kcal": None,
+                "protein_g": None,
+                "carbs_g": None,
+                "fat_g": None,
+                "place": place,
+                "menu_hint": hint,
+            }
+            # try estimate from food db by hint name alone
+            from pipeline.enrichers.taiwan_food_db import lookup_per_100g
+
+            per100 = lookup_per_100g(hint)
+            if per100:
+                # assume one standard serving ~250g cooked dish
+                factor = 2.5
+                row["calories_kcal"] = round(per100[0] * factor, 1)
+                row["protein_g"] = round(per100[1] * factor, 1)
+                row["carbs_g"] = round(per100[2] * factor, 1)
+                row["fat_g"] = round(per100[3] * factor, 1)
+                confidence = "low"
+                notes = f"由 Google 品項線索「{hint}」粗估（示範/待人工校正）"
+            else:
+                confidence = "low"
+                notes = "Google 品項線索，尚無營養估算，請人工補資料或對照 A/B 線"
+
+            db.add(
+                ScrapeResult(
+                    id=new_id(),
+                    job_id=job.id,
+                    raw_data=json.dumps(row, ensure_ascii=False),
+                    parsed_name=row["parsed_name"],
+                    parsed_calories=row["calories_kcal"],
+                    parsed_protein=row["protein_g"],
+                    parsed_carbs=row["carbs_g"],
+                    parsed_fat=row["fat_g"],
+                    ai_confidence=confidence,
+                    ai_notes=notes,
+                    review_status="pending",
+                )
+            )
+            created += 1
+
+    job.result_count = created
+    db.commit()
+    return {"imported": created, "job_id": job.id}

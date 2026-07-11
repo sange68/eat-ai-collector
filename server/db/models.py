@@ -57,6 +57,7 @@ class MenuItem(Base):
     data_confidence = Column(String)
     source_url = Column(String)
     barcode = Column(String)
+    image_url = Column(String)
     derivation_path = Column(Text)
     updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
     created_at = Column(DateTime, default=utcnow)

@@ -3,12 +3,11 @@ from urllib.parse import urlparse
 
 from server.db.connection import SessionLocal
 from server.db.models import ScrapeJob, ScrapeResult, ScraperTemplate, new_id, utcnow
-from pipeline.scrapers.icook import fetch_icook_recipe
-from pipeline.scrapers.subway import fetch_subway_nutrition
+from pipeline.scrapers.icook import fetch_icook_recipe, fetch_icook_seed_batch
+from pipeline.scrapers.catalog import fetch_subway_catalog, fetch_mcdonalds_catalog
 
 
 def ai_review_item(item: dict) -> tuple[str, str]:
-    """Lightweight rule-based pre-review (Gemini can replace later)."""
     name = item.get("parsed_name") or item.get("title")
     cal = item.get("calories_kcal")
     notes = []
@@ -16,14 +15,25 @@ def ai_review_item(item: dict) -> tuple[str, str]:
     if not name:
         return "low", "缺少品項名稱"
 
+    if item.get("image_url"):
+        notes.append("含圖片")
+
     if cal is not None:
         if cal < 0 or cal > 5000:
             notes.append(f"熱量異常: {cal}")
-        if cal > 0:
-            return ("high" if not notes else "medium"), "; ".join(notes) or "欄位完整"
+            return "low", "; ".join(notes)
+        if item.get("data_source") == "official":
+            return "high", "; ".join(notes) or "官方營養資料完整"
+        if item.get("nutrition_estimate"):
+            unmatched = item["nutrition_estimate"].get("unmatched_ingredients") or []
+            if unmatched:
+                notes.append(f"未匹配食材 {len(unmatched)} 項")
+            notes.append("已由台灣食材庫估算每份營養")
+            return "medium", "; ".join(notes)
+        return "high", "; ".join(notes) or "欄位完整"
 
     if item.get("type") == "icook_recipe":
-        return "medium", "食譜資料，待 TFDA 推算營養"
+        return "low", "食譜已抓取，但營養估算失敗"
 
     return "low", "; ".join(notes) or "缺少營養數值"
 
@@ -31,11 +41,16 @@ def ai_review_item(item: dict) -> tuple[str, str]:
 def _resolve_scraper_type(job: ScrapeJob, template: ScraperTemplate | None, url: str) -> str:
     if template:
         return template.config_dict().get("type", "")
-    host = urlparse(url).netloc.lower()
+    host = urlparse(url or "").netloc.lower()
+    path = urlparse(url or "").path
     if "icook.tw" in host:
+        if path.rstrip("/").endswith("/recipes") or path.rstrip("/") == "/recipes":
+            return "icook_seed_batch"
         return "icook_recipe"
-    if "subway.com" in host:
-        return "subway_nutrition"
+    if "subway" in host:
+        return "subway_catalog"
+    if "mcdonalds" in host:
+        return "mcdonalds_catalog"
     return ""
 
 
@@ -60,12 +75,18 @@ def run_scrape_job(job_id: str) -> None:
 
         try:
             if scraper_type == "icook_recipe":
-                payload = fetch_icook_recipe(url)
-                rows = [payload]
-            elif scraper_type == "subway_nutrition":
-                rows = fetch_subway_nutrition(url)
+                rows = [fetch_icook_recipe(url)]
+            elif scraper_type == "icook_seed_batch":
+                rows = fetch_icook_seed_batch()
+            elif scraper_type in ("subway_catalog", "subway_nutrition"):
+                rows = fetch_subway_catalog()
+            elif scraper_type == "mcdonalds_catalog":
+                rows = fetch_mcdonalds_catalog()
             else:
-                raise ValueError(f"不支援的爬蟲類型或網域: {url}")
+                raise ValueError(
+                    f"不支援的來源。請使用：iCook 食譜頁、Subway/McDonald's 模板。"
+                    f" 目前 URL={url}"
+                )
 
             for row in rows:
                 confidence, notes = ai_review_item(row)
