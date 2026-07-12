@@ -110,10 +110,14 @@ def _match_type(place: dict[str, Any], place_type: str) -> bool:
     keywords = TYPE_KEYWORDS.get(place_type, [])
     primary = place.get("primary_type") or ""
     mapped = TYPE_MAP.get(place_type, "")
-    if mapped and mapped in primary:
+    # exact primary type match only (avoid "restaurant" matching "barbecue_restaurant")
+    if mapped and primary == mapped:
         return True
-    blob = f"{place.get('name','')}{place.get('review_summary','')}{place.get('types','')}"
-    return any(k in blob for k in keywords) if keywords else True
+    blob = f"{place.get('name','')}{place.get('review_summary','')}{' '.join(place.get('types') or [])}"
+    if keywords and any(k in blob for k in keywords):
+        return True
+    # for generic restaurant type keyword list empty -> already handled
+    return False
 
 
 def search_places(
