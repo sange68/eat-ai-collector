@@ -1,0 +1,110 @@
+/** Taiwan city -> district -> neighborhood cascading options (synced with backend catalog). */
+export type Neighborhood = string;
+export type District = { name: string; neighborhoods: Neighborhood[] };
+export type City = { name: string; districts: District[] };
+
+export const TAIWAN_REGIONS: City[] = [
+  {
+    name: "台北市",
+    districts: [
+      { name: "中正區", neighborhoods: ["台北車站商圈", "中正紀念堂", "南門市場", "東門", "古亭"] },
+      { name: "大同區", neighborhoods: ["寧夏夜市", "迪化街", "大橋頭", "圓環", "延平北路", "民權西路"] },
+      { name: "中山區", neighborhoods: ["中山北路商圈", "行天宮", "台北小巨蛋", "林森北路", "南京復興"] },
+      { name: "松山區", neighborhoods: ["饒河夜市", "南京三民", "民生社區", "松山機場周邊"] },
+      { name: "大安區", neighborhoods: ["忠孝敦化", "東區", "師大商圈", "公館", "科技大樓", "大安森林公園"] },
+      { name: "信義區", neighborhoods: ["信義商圈", "象山", "永春", "市政府", "松壽路"] },
+      { name: "士林區", neighborhoods: ["士林夜市", "天母", "故宮周邊", "劍潭"] },
+      { name: "北投區", neighborhoods: ["北投溫泉", "石牌", "關渡", "唭哩岸"] },
+      { name: "內湖區", neighborhoods: ["內湖科技園區", "成功路", "東湖", "西湖"] },
+      { name: "南港區", neighborhoods: ["南港展覽館", "昆陽", "九如"] },
+      { name: "文山區", neighborhoods: ["木柵", "景美", "政治大學", "貓空"] },
+      { name: "萬華區", neighborhoods: ["西門町", "龍山寺", "華西街夜市", "青年公園"] },
+    ],
+  },
+  {
+    name: "新北市",
+    districts: [
+      { name: "板橋區", neighborhoods: ["府中", "板橋車站", "文化路", "江子翠"] },
+      { name: "中和區", neighborhoods: ["中和環球", "景安", "永安市場"] },
+      { name: "永和區", neighborhoods: ["樂華夜市", "永安市場", "頂溪"] },
+      { name: "新莊區", neighborhoods: ["新莊廟街", "頭前庄", "丹鳳"] },
+      { name: "三重區", neighborhoods: ["三和夜市", "菜寮", "先嗇宮"] },
+      { name: "新店區", neighborhoods: ["大坪林", "七張", "碧潭"] },
+      { name: "汐止區", neighborhoods: ["汐止車站", "樟樹灣"] },
+      { name: "淡水區", neighborhoods: ["淡水老街", "紅毛城", "漁人碼頭"] },
+      { name: "蘆洲區", neighborhoods: ["蘆洲夜市", "三民高中"] },
+      { name: "樹林區", neighborhoods: ["樹林車站"] },
+      { name: "鶯歌區", neighborhoods: ["鶯歌老街"] },
+      { name: "三峽區", neighborhoods: ["三峽老街"] },
+    ],
+  },
+  {
+    name: "桃園市",
+    districts: [
+      { name: "桃園區", neighborhoods: ["桃園火車站", "中正路"] },
+      { name: "中壢區", neighborhoods: ["中原夜市", "中壢火車站", "SOGO商圈"] },
+      { name: "平鎮區", neighborhoods: ["南勢"] },
+      { name: "八德區", neighborhoods: ["大湳"] },
+      { name: "楊梅區", neighborhoods: ["楊梅車站"] },
+      { name: "蘆竹區", neighborhoods: ["南崁"] },
+      { name: "龜山區", neighborhoods: ["林口長庚", "龜山工業區"] },
+      { name: "龍潭區", neighborhoods: ["龍潭大池"] },
+      { name: "大溪區", neighborhoods: ["大溪老街"] },
+      { name: "大園區", neighborhoods: ["機場周邊"] },
+    ],
+  },
+  {
+    name: "台中市",
+    districts: [
+      { name: "中區", neighborhoods: ["台中火車站", "繼光街"] },
+      { name: "東區", neighborhoods: ["旱溪夜市"] },
+      { name: "南區", neighborhoods: ["忠孝夜市"] },
+      { name: "西區", neighborhoods: ["勤美誠品", "科博館"] },
+      { name: "北區", neighborhoods: ["一中商圈", "中國醫"] },
+      { name: "西屯區", neighborhoods: ["逢甲夜市", "秋紅谷", "市政中心"] },
+      { name: "南屯區", neighborhoods: ["文心森林公園"] },
+      { name: "北屯區", neighborhoods: ["太原路", "崇德路"] },
+      { name: "豐原區", neighborhoods: ["廟東夜市"] },
+      { name: "大里區", neighborhoods: ["大里車站"] },
+      { name: "太平區", neighborhoods: ["太平"] },
+      { name: "沙鹿區", neighborhoods: ["靜宜大學"] },
+    ],
+  },
+  {
+    name: "台南市",
+    districts: [
+      { name: "中西區", neighborhoods: ["赤崁樓", "國華街", "海安路"] },
+      { name: "東區", neighborhoods: ["成大", "育樂街"] },
+      { name: "南區", neighborhoods: ["金華路"] },
+      { name: "北區", neighborhoods: ["花園夜市"] },
+      { name: "安平區", neighborhoods: ["安平老街", "安平古堡"] },
+      { name: "永康區", neighborhoods: ["大橋"] },
+      { name: "新營區", neighborhoods: ["新營"] },
+      { name: "仁德區", neighborhoods: ["奇美博物館"] },
+    ],
+  },
+  {
+    name: "高雄市",
+    districts: [
+      { name: "新興區", neighborhoods: ["六合夜市", "中央公園"] },
+      { name: "前金區", neighborhoods: ["市議會"] },
+      { name: "苓雅區", neighborhoods: ["文化中心", "四維"] },
+      { name: "鹽埕區", neighborhoods: ["駁二", "愛河"] },
+      { name: "鼓山區", neighborhoods: ["西子灣", "美術館"] },
+      { name: "三民區", neighborhoods: ["後驛", "高醫"] },
+      { name: "左營區", neighborhoods: ["巨蛋", "左營舊城"] },
+      { name: "楠梓區", neighborhoods: ["高雄大學"] },
+      { name: "前鎮區", neighborhoods: ["草衙道", "夢時代"] },
+      { name: "鳳山區", neighborhoods: ["鳳山車站"] },
+      { name: "岡山區", neighborhoods: ["岡山"] },
+    ],
+  },
+];
+
+export const PLACE_TYPES = ["燒烤店", "火鍋", "牛肉麵", "小吃", "餐廳", "咖啡廳"] as const;
+
+export function buildAreaLabel(city: string, district: string, neighborhood: string) {
+  return [city, district !== "全部" ? district : "", neighborhood !== "全部" ? neighborhood : ""]
+    .filter(Boolean)
+    .join("");
+}

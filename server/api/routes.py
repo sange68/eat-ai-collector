@@ -385,14 +385,25 @@ def reject_result(
 
 
 class PlacesSearchRequest(BaseModel):
-    area: str = "台北市大同區"
+    city: str = "台北市"
+    district: str = "大同區"
+    neighborhood: str = "全部"
     place_type: str = "燒烤店"
     min_reviews: int = 50
     min_rating: float = 0.0
+    # backward compatible
+    area: Optional[str] = None
 
 
 class PlacesImportRequest(BaseModel):
     places: list[dict]
+
+
+@router.get("/geo/regions")
+def geo_regions(_user: User = Depends(get_current_user)):
+    from pipeline.scrapers.places import load_regions
+
+    return load_regions()
 
 
 @router.post("/places/search")
@@ -403,10 +414,13 @@ def places_search(
     from pipeline.scrapers.places import search_places
 
     return search_places(
-        area=body.area,
+        city=body.city,
+        district=body.district or "",
+        neighborhood=body.neighborhood or "",
         place_type=body.place_type,
         min_reviews=body.min_reviews,
         min_rating=body.min_rating,
+        area=body.area,
     )
 
 
